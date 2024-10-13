@@ -1,3 +1,4 @@
+import { isWritable } from './typeguards/isWritable';
 import { withPrevious } from './withPrevious';
 import { withState } from './withState';
 
@@ -8,4 +9,4 @@ const writableWith = {
 
 export default writableWith;
 
-export { withPrevious, withState };
+export { isWritable, withPrevious, withState };
