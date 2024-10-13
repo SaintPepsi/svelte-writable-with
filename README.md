@@ -8,6 +8,33 @@ A Svelte store utility library that allows you to extend the writable.
 bun add svelte-writable-with
 ```
 
+## Features
+- `withState`
+    
+    **[+]** _property_ `state` - `get(store)`
+
+- `withPrevious`
+
+    **[+]** _property_ `state` - 🔀 `get(store)`
+
+    **[+]** _property_ `previous` - returns the previous  value
+
+    **[%]** _method_ `subscribe` - previous value as second argument `(value, previousValue)`
+    
+    **[%]** _method_ `set` - sets previousValue before setting store state
+    
+    **[%]** _method_ `update` - sets previousValue before updating store state
+
+- `withLocalStorage`
+
+    **[+]** initialises with the `localStorage` value for that key or the `initialValue`
+    
+    **[%]** _method_ `set` - sets the value in `localStorage` - `JSON.stringify` -> `set`
+    
+    **[%]** _method_ `update` - runs the updater with the value currently in the store and stores the value in `localStorage` - `JSON.stringify` -> `set`
+    
+    **[+]** _property_ `state` - 🔀 `get(store)`
+
 ## API
 
 Each method can take either a value or a writable.
