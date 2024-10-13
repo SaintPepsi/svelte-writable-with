@@ -9,31 +9,28 @@ bun add svelte-writable-with
 ```
 
 ## Features
-- `withState`
-    
-    **[+]** _property_ `state` - 🔀 `get(store)`
 
-- `withPrevious`
+### Composition
 
-    **[+]** _property_ `state` - 🔀 `get(store)`
+You can pass either a value, a `writable` or a `writableWith` into a `writableWith`
 
-    **[+]** _property_ `previous` - returns the previous  value
+This makes it so that your other writable's don't have unexpected sid-effects and still behave the same way as they normally would
 
-    **[%]** _method_ `subscribe` - previous value as second argument `(value, previousValue)`
-    
-    **[%]** _method_ `set` - sets the previous value before setting store state
-    
-    **[%]** _method_ `update` - sets the previous value before updating store state
+Example:
+```ts
+const { state, previous } = `svelte-writable-with`;
 
-- `withLocalStorage`
+type Modes = "paint" | "pan" | "erase";
 
-    **[+]** initialises with the `localStorage` value for that key or the `initialValue`
-    
-    **[%]** _method_ `set` - sets the value in `localStorage` - `JSON.stringify` -> `set`
-    
-    **[%]** _method_ `update` - runs the updater with the value currently in the store and stores the value in `localStorage` - `JSON.stringify` -> `set`
-    
-    **[+]** _property_ `state` - 🔀 `get(store)`
+const baseMode = writable('paint')
+const { set, update, subscribe } = baseMode;
+
+const modeWithState = state(baseMode);
+const { set, update, subscribe, state } = baseMode;
+
+const modeWithPreviousAndState = previous(modeWithState)
+const { set, update, subscribe, state, previous } = baseMode;
+```
 
 ## API
 
@@ -43,6 +40,10 @@ Each method can take either a value or a writable.
 usage: `writableWith.state | withState`
 
 allows you to access the state without calling `get` from `svelte/store`
+
+#### this utility returns:
+
+- **[+]** _property_ `state` - 🔀 `get(store)`
 
 #### Usage:
 
@@ -83,6 +84,16 @@ usage: `writableWith.previous | withPrevious`
 
 keeps track of the last value.
 
+#### this utility returns:
+
+- **[+]** _property_ `previous` - returns the previous  value
+
+- **[%]** _method_ `subscribe` - previous value as second argument `(value, previousValue)`
+    
+- **[%]** _method_ `set` - sets the previous value before setting store state
+    
+- **[%]** _method_ `update` - sets the previous value before updating store state
+
 #### Usage:
 
 ```typescript
@@ -91,7 +102,6 @@ const {
     set,            // Modified set updates `previous` value
     update,         // Modified update updates `previous` value
     previous,       // The previous value
-    state,          // The current state of the writable. see `withState`
 } = withPrevious(1337);
 ```
 
@@ -117,6 +127,16 @@ usage: `writableWith.localStorage | withLocalStorage`
 
 Stores the value in localStorage under a specific key prefixed with `svelte-writable-with:`
 
+If the `initialValue` is a `writable` and there's a value for the key in `localStorage` then the writable gets set with that key's value.
+
+#### this utility returns:
+
+- **[+]** initialises with the `localStorage` value for that key or the `initialValue`
+    
+- **[%]** _method_ `set` - sets the value in `localStorage` - `JSON.stringify` -> `set`
+    
+- **[%]** _method_ `update` - runs the updater with the value currently in the store and stores the value in `localStorage` - `JSON.stringify` -> `set`
+
 Keys and values are managed through the `WithLocalStorageKeys` interface
 
 in your `app.d.ts` or `global.d.ts` add the following:
@@ -141,7 +161,6 @@ declare module 'svelte-writable-with' {
 const {
     set,            // Modified set updates `localStorage`
     update,         // Modified update updates `localStorage`
-    state,          // The current state of the writable. see `withState`
     // ... writable return values
 } = withLocalStorage('SOME_KEY', 1337);
 ```
@@ -162,7 +181,7 @@ mode.set(mode.previous);
 ```
 
 
-### Plan:
+### Goal:
 
 The goal is to create an intuitive api that lets you extend and update and add more stuff. based on what your writable requires
 
@@ -189,9 +208,9 @@ Example with extended with's:
 const count = writable(0);
 const countWithState = writableWith.state(count);                   // ✅ Implemented
 // Count with state and previous
-const countPrevious = writableWith.previous(countWithState);        // ❌ Not Implemented
+const countPrevious = writableWith.previous(countWithState);        // ✅ Implemented
 // Count with previous and localStorage
-const countPrevious = writableWith.localStorage(countWithState);    // ❌ Not Implemented
+const countPrevious = writableWith.localStorage(countWithState);    // ✅ Implemented
 ```
 
 #### Possible extensions include

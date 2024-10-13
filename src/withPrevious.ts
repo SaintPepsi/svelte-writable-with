@@ -6,14 +6,18 @@ type PreviousValue<T> = Tagged<T, 'Previous Value'>;
 
 type SubscriberWithPrevious<T> = (value: T, previousValue: PreviousValue<T>) => void;
 
-export interface WithPrevious<T> extends Writable<T> {
+type WithPrevious<T> = {
 	subscribe(this: void, run: SubscriberWithPrevious<T>, invalidate?: () => void): Unsubscriber;
 	previous: PreviousValue<T>;
-	state: T;
-}
+};
+// prettier-ignore
+export type WithPreviousRaw<T extends Writable<T> | unknown> =
+T extends Writable<infer R>
+    ? T & WithPrevious<R>
+    :Writable<T> & WithPrevious<T>
 
-export function withPrevious<T>(initialValue: T | Writable<T>): WithPrevious<T> {
-	const isWritableInitialValue = isWritable<T>(initialValue);
+export function withPrevious<T extends unknown | Writable<T>>(initialValue: T) {
+	const isWritableInitialValue = isWritable(initialValue);
 
 	const writableRes = isWritableInitialValue ? initialValue : writable(initialValue);
 	const { subscribe, set, update } = writableRes;
@@ -43,8 +47,5 @@ export function withPrevious<T>(initialValue: T | Writable<T>): WithPrevious<T> 
 		get previous() {
 			return previousValue;
 		},
-		get state() {
-			return get(writableRes);
-		},
-	};
+	} as T extends unknown ? WithPreviousRaw<T> : WithPreviousRaw<Writable<T>>;
 }

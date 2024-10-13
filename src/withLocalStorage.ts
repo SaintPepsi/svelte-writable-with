@@ -1,13 +1,18 @@
 import { get, Updater, writable, type Writable } from 'svelte/store';
+import { EmptyObject } from 'type-fest';
 import { isWritable } from './typeguards/isWritable';
 
 export interface WithLocalStorageKeys {
-	// _TEST: string;
+	_TEST: string;
 }
 
-export interface WithLocalStorage<T> extends Writable<T> {
-	state: T;
-}
+export type WithLocalStorage = EmptyObject;
+export type WithLocalStorageTemp<T> = 'LocalStorage';
+
+export type WithLocalStorageRaw<T extends Writable<T> | unknown> =
+	T extends Writable<infer R>
+		? T & WithLocalStorageTemp<R>
+		: Writable<T> & WithLocalStorageTemp<T>;
 
 const baseKey = 'svelte-writable-with:';
 
@@ -16,36 +21,56 @@ const baseKey = 'svelte-writable-with:';
  */
 export function withLocalStorage<
 	TKey extends keyof WithLocalStorageKeys,
-	TValue extends WithLocalStorageKeys[TKey],
->(
-	key: TKey,
-	initialValue?: TValue | Writable<TValue>,
-): WithLocalStorage<WithLocalStorageKeys[TKey]> {
-	const isWritableInitialValue = isWritable<TValue>(initialValue);
-
+	T extends Writable<WithLocalStorageKeys[TKey]> | unknown,
+>(key: TKey, initialValue: T) {
 	const storageKey = `${baseKey}${key}`;
+
+	const isInitialValueWritable = isWritable(initialValue);
+
 	const storedValue = localStorage.getItem(storageKey);
-	const parsedValue = storedValue === null ? initialValue : JSON.parse(storedValue);
-	const writableRes = isWritableInitialValue ? parsedValue : writable(parsedValue);
+
+	function safeParse(value: string | null): T | undefined {
+		try {
+			if (value) {
+				return JSON.parse(value);
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	const getWritable = (): Writable<T> => {
+		const parsedValue = safeParse(storedValue);
+
+		if (isInitialValueWritable) {
+			if (parsedValue) {
+				initialValue.set(parsedValue);
+			}
+
+			return initialValue;
+		}
+
+		return writable(parsedValue);
+	};
+
+	const writableRes = getWritable();
+
 	const { set } = writableRes;
 
-	const storeItem = (value: TValue) => {
+	const storeItem = (value: T) => {
 		localStorage.setItem(storageKey, JSON.stringify(value));
 	};
 
 	return {
 		...writableRes,
-		set: (value: TValue) => {
+		set: (value: T) => {
 			storeItem(value);
 			set(value);
 		},
-		update: (updater: Updater<TValue>) => {
+		update: (updater: Updater<T>) => {
 			const value = updater(get(writableRes));
 			storeItem(value);
 			set(value);
 		},
-		get state() {
-			return get(writableRes);
-		},
-	};
+	} as T extends unknown ? WithLocalStorageRaw<T> : WithLocalStorageRaw<Writable<T>>;
 }

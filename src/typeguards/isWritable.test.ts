@@ -48,4 +48,14 @@ describe('isWritable', () => {
 		};
 		expect(isWritable(invalidStore)).toBe(false);
 	});
+
+	it('should return false for an object that has writable keys but also additional keys', () => {
+		const invalidStore = {
+			subscribe: () => {},
+			set: () => {},
+			update: () => {},
+			great: () => {},
+		};
+		expect(isWritable(invalidStore)).toBe(true);
+	});
 });
