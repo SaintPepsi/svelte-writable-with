@@ -8,12 +8,6 @@ A Svelte store utility library that allows you to extend the writable.
 bun add svelte-writable-with
 ```
 
-## Usage
-
-```typescript
-
-```
-
 ## API
 
 Each method can take either a value or a writable.
