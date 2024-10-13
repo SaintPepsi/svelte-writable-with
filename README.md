@@ -83,29 +83,29 @@ The goal is to create an intuitive api that lets you extend and update and add m
 Example with direct values:
 
 ```ts
-writableWith.state(1337);
-writableWith.previous(1337);
-writableWith.history(1337);
+writableWith.state(1337);       // ✅ Implemented
+writableWith.previous(1337);    // ✅ Implemented
+writableWith.history(1337);     // history not implemented
 ```
 
 Example with writable values:
 
 ```ts
 const count = writable(0);
-writableWith.state(count);
-writableWith.previous(count);
-writableWith.history(count);
+writableWith.state(count);      // ✅ Implemented
+writableWith.previous(count);   // ✅ Implemented
+writableWith.history(count);    // history not implemented
 ```
 
 Example with extended with's:
 
 ```ts
 const count = writable(0);
-const countWithState = writableWith.state(count);
+const countWithState = writableWith.state(count);               // ✅ Implemented
 // Count with state and previous
-const countPrevious = writableWith.previous(countWithState);
+const countPrevious = writableWith.previous(countWithState);    // ❌ Not Implemented
 // Count with state and history
-const countHistory = writableWith.history(countWithState);
+const countHistory = writableWith.history(countWithState);      // ❌ Not Implemented
 ```
 
 #### Possible extensions include
