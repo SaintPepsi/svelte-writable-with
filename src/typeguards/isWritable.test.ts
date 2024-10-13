@@ -11,7 +11,7 @@ describe('isWritable', () => {
 	it('should return false for an object without subscribe method', () => {
 		const invalidStore = {
 			set: () => {},
-			update: () => {}
+			update: () => {},
 		};
 		expect(isWritable(invalidStore)).toBe(false);
 	});
@@ -19,7 +19,7 @@ describe('isWritable', () => {
 	it('should return false for an object without set method', () => {
 		const invalidStore = {
 			subscribe: () => {},
-			update: () => {}
+			update: () => {},
 		};
 		expect(isWritable(invalidStore)).toBe(false);
 	});
@@ -27,7 +27,7 @@ describe('isWritable', () => {
 	it('should return false for an object without update method', () => {
 		const invalidStore = {
 			subscribe: () => {},
-			set: () => {}
+			set: () => {},
 		};
 		expect(isWritable(invalidStore)).toBe(false);
 	});
@@ -44,7 +44,7 @@ describe('isWritable', () => {
 		const invalidStore = {
 			subscribe: 'not a function',
 			set: 'not a function',
-			update: 'not a function'
+			update: 'not a function',
 		};
 		expect(isWritable(invalidStore)).toBe(false);
 	});
