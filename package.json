@@ -20,6 +20,9 @@
         "dist"
     ],
     "keywords": [
+        "svelte",
+        "writable",
+        "store",
         "bun"
     ],
     "license": "MIT",
