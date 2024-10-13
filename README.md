@@ -11,7 +11,7 @@ bun add svelte-writable-with
 ## Features
 - `withState`
     
-    **[+]** _property_ `state` - `get(store)`
+    **[+]** _property_ `state` - 🔀 `get(store)`
 
 - `withPrevious`
 
@@ -21,9 +21,9 @@ bun add svelte-writable-with
 
     **[%]** _method_ `subscribe` - previous value as second argument `(value, previousValue)`
     
-    **[%]** _method_ `set` - sets previousValue before setting store state
+    **[%]** _method_ `set` - sets the previous value before setting store state
     
-    **[%]** _method_ `update` - sets previousValue before updating store state
+    **[%]** _method_ `update` - sets the previous value before updating store state
 
 - `withLocalStorage`
 
