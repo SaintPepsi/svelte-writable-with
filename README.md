@@ -62,6 +62,20 @@ const {
 } = withPrevious(1337);
 ```
 
+#### Example:
+
+setting the writable back to the last value
+
+```ts
+type States = "paint" | "pan" | "erase"; 
+const mode = withPrevious<States>("paint");
+
+// Some condition to change mode
+mode.set("pan");
+
+// Some condition to return
+mode.set(mode.previous);
+```
 ### Plan:
 
 The goal is to create an intuitive api that lets you extend and update and add more stuff. based on what your writable requires
