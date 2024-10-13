@@ -20,8 +20,8 @@ const baseKey = 'svelte-writable-with:';
  * @param key the key for the localStorage. can be extended with the interface `WithLocalStorageKeys`
  */
 export function withLocalStorage<
-	TKey extends keyof WithLocalStorageKeys,
 	T extends Writable<WithLocalStorageKeys[TKey]> | unknown,
+	TKey extends keyof WithLocalStorageKeys = keyof WithLocalStorageKeys,
 >(key: TKey, initialValue: T) {
 	const storageKey = `${baseKey}${key}`;
 

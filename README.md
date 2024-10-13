@@ -32,6 +32,18 @@ const modeWithPreviousAndState = previous(modeWithState)
 const { set, update, subscribe, state, previous } = baseMode;
 ```
 
+The type becomes a bit _munted_ if you don't provide the primary type in the first `withable` i.e.:
+
+✅ Correct types: 
+```
+state(previous<Record<"foo" | "bar", boolean>({}))
+```
+❌ Invalid types: `previous` will complain
+```
+state<Record<"foo" | "bar", boolean>(previous({}))
+``` 
+
+
 ## API
 
 Each method can take either a value or a writable.
