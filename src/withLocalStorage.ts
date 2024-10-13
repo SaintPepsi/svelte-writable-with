@@ -3,7 +3,7 @@ import { EmptyObject } from 'type-fest';
 import { isWritable } from './typeguards/isWritable';
 
 export interface WithLocalStorageKeys {
-	_TEST: string;
+	// _TEST: string;
 }
 
 export type WithLocalStorage = EmptyObject;
