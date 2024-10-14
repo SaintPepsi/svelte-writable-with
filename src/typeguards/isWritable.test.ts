@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'bun:test';
 import { writable } from 'svelte/store';
+import { describe, expect, it } from 'vitest';
 import { isWritable } from './isWritable';
 
 describe('isWritable', () => {

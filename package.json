@@ -1,7 +1,7 @@
 {
     "name": "svelte-writable-with",
     "type": "module",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "main": "./dist/index.cjs",
     "module": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -14,6 +14,7 @@
     "scripts": {
         "build": "bun run build.ts",
         "prepublishOnly": "bun run build",
+        "test": "vitest",
         "format": "prettier --write ./src"
     },
     "files": [
@@ -34,12 +35,19 @@
     "bugs": "https://github.com/SaintPepsi/svelte-writable-with/issues",
     "author": "Ian Hogers <info@iahogers.com>",
     "devDependencies": {
-        "@types/bun": "^1.1.10",
+        "@types/bun": "^1.1.11",
+        "@types/eslint": "^9.6.1",
         "bun-plugin-dts": "^0.3.0",
+        "eslint": "^9.12.0",
+        "eslint-config-prettier": "^9.1.0",
+        "globals": "^15.11.0",
         "prettier": "^3.3.3",
         "prettier-plugin-svelte": "^3.2.7",
         "svelte": "^4.2.19",
         "type-fest": "^4.26.1",
+        "typescript-eslint": "^8.8.1",
+        "vitest": "^2.1.2",
+        "vitest-localstorage-mock": "^0.1.2",
         "zod": "^3.23.8"
     }
 }

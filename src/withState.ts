@@ -1,21 +1,23 @@
-import { get, writable, type Writable } from 'svelte/store';
+import { get, type Writable, writable } from 'svelte/store';
 import { isWritable } from './typeguards/isWritable';
+import type { UnpackWritable } from './types';
 
-type WithState<T> = {
-	state: T;
+export type WithState<T> = T & {
+	state: UnpackWritable<T>;
 };
 
-export type WithStateRaw<T extends Writable<T> | unknown> =
-	T extends Writable<infer R> ? T & WithState<R> : Writable<T> & WithState<T>;
+// prettier-ignore
+type WithStateRaw<T> = T extends Writable<unknown> 
+    ? WithState<T> 
+    : WithState<Writable<T>>;
 
-export function withState<T extends Writable<T> | unknown>(initialValue: T) {
+export function withState<T>(initialValue: T) {
 	const isWritableInitialValue = isWritable(initialValue);
 	const writableRes = isWritableInitialValue ? initialValue : writable(initialValue);
 
-	return {
-		...writableRes,
+	return Object.assign({}, writableRes, {
 		get state() {
 			return get(writableRes);
 		},
-	} as T extends unknown ? WithStateRaw<T> : WithStateRaw<Writable<T>>;
+	}) as unknown as WithStateRaw<T>;
 }

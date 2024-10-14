@@ -2,6 +2,23 @@
 
 A Svelte store utility library that allows you to extend the writable.
 
+I personally found the developer experience using svelte's `get` to obtain the writable's value a bit _stinky_, so many libraries export `get` the import pollution is like global warming for npm packages.
+
+And so I wanted to just be able to go `store.state` similar to TanStack Store and that's what made me create `withState`, I then realised other functionality was also handy.
+
+## Why
+💩 _stinky:_
+```ts
+const store = writable('foo');
+const value = get(store);
+const desiredValue = someRecord[value];
+```
+🥰 _fragrant:_ 
+```ts
+const store = withState('foo');
+const desiredValue = someRecord[store.state];
+```
+
 ## Installation
 
 ```bash
@@ -35,11 +52,11 @@ const { set, update, subscribe, state, previous } = baseMode;
 The type becomes a bit _munted_ if you don't provide the primary type in the first `withable` i.e.:
 
 ✅ Correct types: 
-```
+```ts
 state(previous<Record<"foo" | "bar", boolean>({}))
 ```
 ❌ Invalid types: `previous` will complain
-```
+```ts
 state<Record<"foo" | "bar", boolean>(previous({}))
 ``` 
 
@@ -71,7 +88,7 @@ const {
 Property access:
 
 ```ts
-const currentBenefit = withState("spinach");
+const currentBenefit = withState("spinach" as const);
 
 const vegetableBenefits = {
     spinach: "Iron, vitamins, energy",

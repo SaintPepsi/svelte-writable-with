@@ -1,51 +1,60 @@
 import { get, writable, type Unsubscriber, type Updater, type Writable } from 'svelte/store';
 import type { Tagged } from 'type-fest';
 import { isWritable } from './typeguards/isWritable';
+import type { UnpackWritable } from './types';
 
 type PreviousValue<T> = Tagged<T, 'Previous Value'>;
 
 type SubscriberWithPrevious<T> = (value: T, previousValue: PreviousValue<T>) => void;
 
-type WithPrevious<T> = {
-	subscribe(this: void, run: SubscriberWithPrevious<T>, invalidate?: () => void): Unsubscriber;
-	previous: PreviousValue<T>;
+export type WithPrevious<T> = T & {
+	subscribe(
+		run: SubscriberWithPrevious<UnpackWritable<T>>,
+		invalidate?: () => void,
+	): Unsubscriber;
+	set(value: UnpackWritable<T>): void;
+	update(updater: Updater<UnpackWritable<T>>): void;
+	previous: PreviousValue<UnpackWritable<T>>;
 };
-// prettier-ignore
-export type WithPreviousRaw<T extends Writable<T> | unknown> =
-T extends Writable<infer R>
-    ? T & WithPrevious<R>
-    :Writable<T> & WithPrevious<T>
 
-export function withPrevious<T extends unknown | Writable<T>>(initialValue: T) {
-	const isWritableInitialValue = isWritable(initialValue);
+type WithPreviousRaw<T> = T extends Writable<unknown> ? WithPrevious<T> : WithPrevious<Writable<T>>;
+
+export function withPrevious<T>(initialValue: T) {
+	type Value = UnpackWritable<T>;
+	const isWritableInitialValue = isWritable<T, Writable<T>>(initialValue);
 
 	const writableRes = isWritableInitialValue ? initialValue : writable(initialValue);
+	type PreviousValue = Tagged<Value, 'Previous Value'>;
 	const { subscribe, set, update } = writableRes;
 
-	let previousValue = (
-		isWritableInitialValue ? get(initialValue) : initialValue
-	) as PreviousValue<T>;
-
-	function subscribeWithPrevious(run: SubscriberWithPrevious<T>, invalidate: () => void) {
-		return subscribe((value) => {
-			run(value, previousValue);
-			previousValue = value as PreviousValue<T>;
-		}, invalidate);
+	let previousValue: PreviousValue;
+	function setPreviousValue(value: T) {
+		previousValue = value as PreviousValue;
 	}
 
-	return {
-		...writableRes,
-		subscribe: subscribeWithPrevious,
+	const initValue = isWritableInitialValue ? get(initialValue) : initialValue;
+	setPreviousValue(initValue);
+
+	return Object.assign({}, writableRes, {
+		subscribe: (
+			run: (value: Value, previousValue: PreviousValue) => void,
+			invalidate?: () => void,
+		) => {
+			return subscribe((value) => {
+				run(value as Value, previousValue);
+				setPreviousValue(value);
+			}, invalidate);
+		},
 		set: (value: T) => {
-			previousValue = get(writableRes) as PreviousValue<T>;
+			setPreviousValue(get(writableRes));
 			set(value);
 		},
 		update: (updater: Updater<T>) => {
-			previousValue = get(writableRes) as PreviousValue<T>;
+			setPreviousValue(get(writableRes));
 			update(updater);
 		},
 		get previous() {
 			return previousValue;
 		},
-	} as T extends unknown ? WithPreviousRaw<T> : WithPreviousRaw<Writable<T>>;
+	}) as unknown as WithPreviousRaw<T>;
 }

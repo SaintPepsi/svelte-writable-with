@@ -1,18 +1,19 @@
-import { get, Updater, writable, type Writable } from 'svelte/store';
-import { EmptyObject } from 'type-fest';
+import type { Updater } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import { isWritable } from './typeguards/isWritable';
+import type { UnpackWritable } from './types';
 
 export interface WithLocalStorageKeys {
-	// _TEST: string;
+	_TEST: string;
 }
 
-export type WithLocalStorage = EmptyObject;
-export type WithLocalStorageTemp<T> = 'LocalStorage';
+export type WithLocalStorage<TKey, T> = T & {
+	set: (value: UnpackWritable<T>) => void;
+	update: (updater: Updater<UnpackWritable<T>>) => void;
+};
 
-export type WithLocalStorageRaw<T extends Writable<T> | unknown> =
-	T extends Writable<infer R>
-		? T & WithLocalStorageTemp<R>
-		: Writable<T> & WithLocalStorageTemp<T>;
+type WithLocalStorageRaw<TKey, T> =
+	T extends Writable<unknown> ? WithLocalStorage<TKey, T> : WithLocalStorage<TKey, Writable<T>>;
 
 const baseKey = 'svelte-writable-with:';
 
@@ -20,7 +21,7 @@ const baseKey = 'svelte-writable-with:';
  * @param key the key for the localStorage. can be extended with the interface `WithLocalStorageKeys`
  */
 export function withLocalStorage<
-	T extends Writable<WithLocalStorageKeys[TKey]> | unknown,
+	T,
 	TKey extends keyof WithLocalStorageKeys = keyof WithLocalStorageKeys,
 >(key: TKey, initialValue: T) {
 	const storageKey = `${baseKey}${key}`;
@@ -61,8 +62,7 @@ export function withLocalStorage<
 		localStorage.setItem(storageKey, JSON.stringify(value));
 	};
 
-	return {
-		...writableRes,
+	return Object.assign({}, writableRes, {
 		set: (value: T) => {
 			storeItem(value);
 			set(value);
@@ -72,5 +72,5 @@ export function withLocalStorage<
 			storeItem(value);
 			set(value);
 		},
-	} as T extends unknown ? WithLocalStorageRaw<T> : WithLocalStorageRaw<Writable<T>>;
+	}) as unknown as WithLocalStorageRaw<TKey, T>;
 }
