@@ -13,6 +13,7 @@
     },
     "scripts": {
         "build": "bun run build.ts",
+        "dev": "bun build ./src/index.ts --outdir ./dist --watch",
         "prepublishOnly": "bun run build",
         "test": "vitest",
         "format": "prettier --write ./src"
