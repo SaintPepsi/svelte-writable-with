@@ -12,7 +12,7 @@ import type { UnpackWritable } from './types';
 
 type PreviousValue<T> = Tagged<T, 'Previous Value'>;
 
-type WithPreviousRaw<T> = T & {
+type WithPreviousRaw<T> = Omit<T, 'subscribe' | 'set' | 'update' | 'previous'> & {
 	subscribe: (
 		this: void,
 		run: (value: UnpackWritable<T>, previousValue: PreviousValue<UnpackWritable<T>>) => void,
@@ -28,9 +28,9 @@ type WithPreviousRaw<T> = T & {
  */
 export type WithPrevious<T> = WithPreviousRaw<T extends Writable<unknown> ? T : Writable<T>>;
 
-export function withPrevious<T>(initialValue: T) {
+export const withPrevious = <T>(initialValue: T): WithPrevious<T> => {
 	type Value = UnpackWritable<T>;
-	const isWritableInitialValue = isWritable<T, Writable<T>>(initialValue);
+	const isWritableInitialValue = isWritable(initialValue);
 
 	const writableRes = isWritableInitialValue ? initialValue : writable(initialValue);
 	type PreviousValue = Tagged<Value, 'Previous Value'>;
@@ -44,7 +44,8 @@ export function withPrevious<T>(initialValue: T) {
 	const initValue = isWritableInitialValue ? get(initialValue) : initialValue;
 	setPreviousValue(initValue);
 
-	return Object.assign({}, writableRes, {
+	return {
+		...writableRes,
 		subscribe: (
 			run: (value: Value, previousValue: PreviousValue) => void,
 			invalidate?: () => void,
@@ -65,5 +66,5 @@ export function withPrevious<T>(initialValue: T) {
 		get previous() {
 			return previousValue;
 		},
-	}) as WithPrevious<T>;
-}
+	} as any;
+};

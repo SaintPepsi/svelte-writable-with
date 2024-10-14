@@ -13,9 +13,10 @@ const store = writable('foo');
 const value = get(store);
 const desiredValue = someRecord[value];
 ```
+
 🥰 _fragrant:_ 
 ```ts
-const store = withState('foo');
+const store = state(writable('foo'));
 const desiredValue = someRecord[store.state];
 ```
 
@@ -53,11 +54,11 @@ The type becomes a bit _munted_ if you don't provide the primary type in the fir
 
 ✅ Correct types: 
 ```ts
-state(previous<Record<"foo" | "bar", boolean>({}))
+state(previous(writable(<Record<"foo" | "bar", boolean>({})))
 ```
 ❌ Invalid types: `previous` will complain
 ```ts
-state<Record<"foo" | "bar", boolean>(previous({}))
+state<Record<"foo" | "bar", boolean>(previous(writable({})))
 ``` 
 
 
@@ -80,7 +81,7 @@ allows you to access the state without calling `get` from `svelte/store`
 const {
     state,      // The current state of the writable.
     // ... writable return values
-} = withState(1337);
+} = withState(writable(1337));
 ```
 
 #### Example:
@@ -88,7 +89,7 @@ const {
 Property access:
 
 ```ts
-const currentBenefit = withState("spinach" as const);
+const currentBenefit = withState(writable("spinach" as const));
 
 const vegetableBenefits = {
     spinach: "Iron, vitamins, energy",
@@ -131,7 +132,7 @@ const {
     set,            // Modified set updates `previous` value
     update,         // Modified update updates `previous` value
     previous,       // The previous value
-} = withPrevious(1337);
+} = withPrevious(writable(1337));
 ```
 
 #### Example:
@@ -140,7 +141,7 @@ setting the writable back to the last value
 
 ```ts
 type States = "paint" | "pan" | "erase"; 
-const mode = withPrevious<States>("paint");
+const mode = withPrevious(writable<States>("paint"));
 
 // Some condition to change mode
 mode.set("pan");
@@ -165,6 +166,8 @@ If the `initialValue` is a `writable` and there's a value for the key in `localS
 - **[%]** _method_ `set` - sets the value in `localStorage` - `JSON.stringify` -> `set`
     
 - **[%]** _method_ `update` - runs the updater with the value currently in the store and stores the value in `localStorage` - `JSON.stringify` -> `set`
+
+#### Currently having issues with this one:
 
 Keys and values are managed through the `WithLocalStorageKeys` interface
 
@@ -191,7 +194,7 @@ const {
     set,            // Modified set updates `localStorage`
     update,         // Modified update updates `localStorage`
     // ... writable return values
-} = withLocalStorage('SOME_KEY', 1337);
+} = withLocalStorage('SOME_KEY', writable(1337));
 ```
 
 #### Example:
@@ -200,7 +203,7 @@ setting the writable back to the last value
 
 ```ts
 type States = "paint" | "pan" | "erase"; 
-const mode = withPrevious<States>("paint");
+const mode = withPrevious(writable<States>("paint"));
 
 // Some condition to change mode
 mode.set("pan");
@@ -217,9 +220,9 @@ The goal is to create an intuitive api that lets you extend and update and add m
 Example with direct values:
 
 ```ts
-writableWith.state(1337);                       // ✅ Implemented
-writableWith.previous(1337);                    // ✅ Implemented
-writableWith.localStorage('SOME_KEY', 1337);    // ✅ Implemented
+writableWith.state(1337);                       // ✅ Implemented - Currently has type issues
+writableWith.previous(1337);                    // ✅ Implemented - Currently has type issues
+writableWith.localStorage('SOME_KEY', 1337);    // ✅ Implemented - Currently has type issues
 ```
 
 Example with writable values:

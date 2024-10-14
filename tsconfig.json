@@ -4,7 +4,7 @@
 		"lib": ["ESNext", "DOM"],
 		"target": "ESNext",
 		"module": "ESNext",
-		// "moduleDetection": "force",
+		"moduleDetection": "force",
 		"allowJs": true,
 
 		// Bundler mode

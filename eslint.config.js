@@ -29,6 +29,7 @@ export default tseslint.config(
 			'@typescript-eslint/no-namespace': 'off',
 			'@typescript-eslint/consistent-type-imports': 'error',
 			'@typescript-eslint/no-unused-locals': 'off',
+			'@typescript-eslint/no-explicit-any': 'off',
 		},
 	},
 );

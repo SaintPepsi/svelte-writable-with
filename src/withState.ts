@@ -2,10 +2,10 @@ import { get, type Writable, writable } from 'svelte/store';
 import { isWritable } from './typeguards/isWritable';
 import type { UnpackWritable } from './types';
 
-type WithStateRaw<T> = T & {
-	set: Writable<UnpackWritable<T>>['set'];
-	update: Writable<UnpackWritable<T>>['update'];
-	subscribe: Writable<UnpackWritable<T>>['subscribe'];
+type WithStateRaw<T> = Omit<T, 'state'> & {
+	// set: Writable<UnpackWritable<T>>['set'];
+	// update: Writable<UnpackWritable<T>>['update'];
+	// subscribe: Writable<UnpackWritable<T>>['subscribe'];
 	state: UnpackWritable<T>;
 };
 
@@ -19,13 +19,14 @@ export type WithState<T> = WithStateRaw<
         : Writable<T>
 >
 
-export function withState<T>(initialValue: T) {
+export const withState = <T>(initialValue: T): WithState<T> => {
 	const isWritableInitialValue = isWritable(initialValue);
 	const writableRes = isWritableInitialValue ? initialValue : writable(initialValue);
 
-	return Object.assign({}, writableRes, {
+	return {
+		...writableRes,
 		get state() {
 			return get(writableRes);
 		},
-	}) as WithState<T>;
-}
+	} as any;
+};

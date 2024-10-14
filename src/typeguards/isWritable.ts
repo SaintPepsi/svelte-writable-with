@@ -1,9 +1,7 @@
 import type { Writable } from 'svelte/store';
 import { z } from 'zod';
 
-export function isWritable<TValue extends unknown, TWritable extends Writable<TValue>>(
-	value: TWritable | TValue,
-): value is TWritable {
+export const isWritable = <T extends Writable<any>>(value: any): value is T => {
 	const parseRes = z
 		.object({
 			subscribe: z.function(z.tuple([]), z.any()),
@@ -12,4 +10,4 @@ export function isWritable<TValue extends unknown, TWritable extends Writable<TV
 		})
 		.safeParse(value);
 	return parseRes.success;
-}
+};
