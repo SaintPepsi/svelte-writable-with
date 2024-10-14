@@ -1,23 +1,32 @@
-import { get, writable, type Unsubscriber, type Updater, type Writable } from 'svelte/store';
+import {
+	get,
+	writable,
+	type Invalidator,
+	type Unsubscriber,
+	type Updater,
+	type Writable,
+} from 'svelte/store';
 import type { Tagged } from 'type-fest';
 import { isWritable } from './typeguards/isWritable';
 import type { UnpackWritable } from './types';
 
 type PreviousValue<T> = Tagged<T, 'Previous Value'>;
 
-type SubscriberWithPrevious<T> = (value: T, previousValue: PreviousValue<T>) => void;
-
-export type WithPrevious<T> = T & {
-	subscribe(
-		run: SubscriberWithPrevious<UnpackWritable<T>>,
-		invalidate?: () => void,
-	): Unsubscriber;
-	set(value: UnpackWritable<T>): void;
-	update(updater: Updater<UnpackWritable<T>>): void;
+type WithPreviousRaw<T> = T & {
+	subscribe: (
+		this: void,
+		run: (value: UnpackWritable<T>, previousValue: PreviousValue<UnpackWritable<T>>) => void,
+		invalidate?: Invalidator<UnpackWritable<T>>,
+	) => Unsubscriber;
+	set: (value: UnpackWritable<T>) => void;
+	update: (updater: Updater<UnpackWritable<T>>) => void;
 	previous: PreviousValue<UnpackWritable<T>>;
 };
 
-type WithPreviousRaw<T> = T extends Writable<unknown> ? WithPrevious<T> : WithPrevious<Writable<T>>;
+/**
+ * Thanks to [ViewableGravy](https://github.com/ViewableGravy) for help with the types
+ */
+export type WithPrevious<T> = WithPreviousRaw<T extends Writable<unknown> ? T : Writable<T>>;
 
 export function withPrevious<T>(initialValue: T) {
 	type Value = UnpackWritable<T>;
@@ -56,5 +65,5 @@ export function withPrevious<T>(initialValue: T) {
 		get previous() {
 			return previousValue;
 		},
-	}) as unknown as WithPreviousRaw<T>;
+	}) as WithPrevious<T>;
 }

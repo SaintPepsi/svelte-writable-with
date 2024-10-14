@@ -7,9 +7,9 @@ import { withState, type WithState } from './withState';
 // for some reason `expectTypeOf` is not working
 
 describe('Types Test', () => {
-	describe('GIVEN you pass a raw value', () => {
+	describe('GIVEN you pass a writable value', () => {
 		it('THEN withState should have the correct type', () => {
-			const writeState = withState('test');
+			const writeState = withState(writable('test'));
 
 			expect(writeState.set).toBeDefined();
 			expect(writeState.subscribe).toBeDefined();
@@ -23,7 +23,7 @@ describe('Types Test', () => {
 		});
 
 		it('THEN withPrevious should have the correct type', () => {
-			const writePrevious = withPrevious('test');
+			const writePrevious = withPrevious(writable('test'));
 
 			expect(writePrevious.set).toBeDefined();
 			expect(writePrevious.subscribe).toBeDefined();
@@ -37,6 +37,47 @@ describe('Types Test', () => {
 		});
 
 		it('THEN withLocalStorage should have the correct type', () => {
+			const writeLocalStorage = withLocalStorage('_TEST', writable('test'));
+			expect(writeLocalStorage.set).toBeDefined();
+			expect(writeLocalStorage.subscribe).toBeDefined();
+			expect(writeLocalStorage.update).toBeDefined();
+
+			// prettier-ignore
+			expectTypeOf(writeLocalStorage).toEqualTypeOf<
+				WithLocalStorage<"_TEST", Writable<string>>
+			>();
+		});
+	});
+	describe('GIVEN you pass a raw value', () => {
+		it('THEN withState should have the correct type', () => {
+			const writeState = withState('test');
+
+			expect(writeState.set).toBeDefined();
+			expect(writeState.subscribe).toBeDefined();
+			expect(writeState.update).toBeDefined();
+			expect(writeState.state).toBeDefined();
+
+			// prettier-ignore
+			expectTypeOf(writeState).toEqualTypeOf<
+                WithState<string>
+            >();
+		});
+
+		it('THEN withPrevious should have the correct type', () => {
+			const writePrevious = withPrevious('test');
+
+			expect(writePrevious.set).toBeDefined();
+			expect(writePrevious.subscribe).toBeDefined();
+			expect(writePrevious.update).toBeDefined();
+			expect(writePrevious.previous).toBeDefined();
+
+			// prettier-ignore
+			expectTypeOf(writePrevious).toEqualTypeOf<
+                WithPrevious<string>
+            >();
+		});
+
+		it('THEN withLocalStorage should have the correct type', () => {
 			const writeLocalStorage = withLocalStorage('_TEST', 'test');
 			expect(writeLocalStorage.set).toBeDefined();
 			expect(writeLocalStorage.subscribe).toBeDefined();
@@ -44,7 +85,7 @@ describe('Types Test', () => {
 
 			// prettier-ignore
 			expectTypeOf(writeLocalStorage).toEqualTypeOf<
-				WithLocalStorage<'_TEST', Writable<string>>
+				WithLocalStorage<'_TEST', string>
 			>();
 		});
 	});
@@ -60,7 +101,7 @@ describe('Types Test', () => {
 
 			// prettier-ignore
 			expectTypeOf(writeState).toEqualTypeOf<
-                WithState<Writable<'test'>>
+                WithState<'test'>
             >();
 		});
 
@@ -88,6 +129,49 @@ describe('Types Test', () => {
 			// prettier-ignore
 			expectTypeOf(writeLocalStorage).toEqualTypeOf<
 				WithLocalStorage<'_TEST', Writable<'test'>>
+			>();
+		});
+	});
+
+	describe('GIVEN you pass a union type value', () => {
+		type Foo = 'foo' | 'bar' | 'baz';
+		it('THEN withState should have the correct type', () => {
+			const writeState = withState<Foo>('baz');
+
+			expect(writeState.set).toBeDefined();
+			expect(writeState.subscribe).toBeDefined();
+			expect(writeState.update).toBeDefined();
+			expect(writeState.state).toBeDefined();
+
+			// prettier-ignore
+			expectTypeOf(writeState).toEqualTypeOf<
+                WithState<Foo>
+            >();
+		});
+
+		it('THEN withPrevious should have the correct type', () => {
+			const writePrevious = withPrevious('test');
+
+			expect(writePrevious.set).toBeDefined();
+			expect(writePrevious.subscribe).toBeDefined();
+			expect(writePrevious.update).toBeDefined();
+			expect(writePrevious.previous).toBeDefined();
+
+			// prettier-ignore
+			expectTypeOf(writePrevious).toEqualTypeOf<
+                WithPrevious<Writable<string>>
+            >();
+		});
+
+		it('THEN withLocalStorage should have the correct type', () => {
+			const writeLocalStorage = withLocalStorage('_TEST', 'test');
+			expect(writeLocalStorage.set).toBeDefined();
+			expect(writeLocalStorage.subscribe).toBeDefined();
+			expect(writeLocalStorage.update).toBeDefined();
+
+			// prettier-ignore
+			expectTypeOf(writeLocalStorage).toEqualTypeOf<
+				WithLocalStorage<'_TEST', Writable<string>>
 			>();
 		});
 	});

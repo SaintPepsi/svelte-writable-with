@@ -2,14 +2,22 @@ import { get, type Writable, writable } from 'svelte/store';
 import { isWritable } from './typeguards/isWritable';
 import type { UnpackWritable } from './types';
 
-export type WithState<T> = T & {
+type WithStateRaw<T> = T & {
+	set: Writable<UnpackWritable<T>>['set'];
+	update: Writable<UnpackWritable<T>>['update'];
+	subscribe: Writable<UnpackWritable<T>>['subscribe'];
 	state: UnpackWritable<T>;
 };
 
 // prettier-ignore
-type WithStateRaw<T> = T extends Writable<unknown> 
-    ? WithState<T> 
-    : WithState<Writable<T>>;
+/**
+ * Thanks to [ViewableGravy](https://github.com/ViewableGravy) for help with the types
+ */
+export type WithState<T> = WithStateRaw<
+    T extends Writable<unknown> 
+        ? T 
+        : Writable<T>
+>
 
 export function withState<T>(initialValue: T) {
 	const isWritableInitialValue = isWritable(initialValue);
@@ -19,5 +27,5 @@ export function withState<T>(initialValue: T) {
 		get state() {
 			return get(writableRes);
 		},
-	}) as unknown as WithStateRaw<T>;
+	}) as WithState<T>;
 }

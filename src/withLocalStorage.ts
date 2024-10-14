@@ -7,13 +7,19 @@ export interface WithLocalStorageKeys {
 	_TEST: string;
 }
 
-export type WithLocalStorage<TKey, T> = T & {
+type WithLocalStorageRaw<TKey, T> = T & {
 	set: (value: UnpackWritable<T>) => void;
 	update: (updater: Updater<UnpackWritable<T>>) => void;
+	subscribe: Writable<UnpackWritable<T>>['subscribe'];
 };
 
-type WithLocalStorageRaw<TKey, T> =
-	T extends Writable<unknown> ? WithLocalStorage<TKey, T> : WithLocalStorage<TKey, Writable<T>>;
+/**
+ * Thanks to [ViewableGravy](https://github.com/ViewableGravy) for help with the types
+ */
+export type WithLocalStorage<TKey, T> = WithLocalStorageRaw<
+	TKey,
+	T extends Writable<unknown> ? T : Writable<T>
+>;
 
 const baseKey = 'svelte-writable-with:';
 
@@ -72,5 +78,5 @@ export function withLocalStorage<
 			storeItem(value);
 			set(value);
 		},
-	}) as unknown as WithLocalStorageRaw<TKey, T>;
+	}) as WithLocalStorage<TKey, T>;
 }
