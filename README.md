@@ -1,3 +1,4 @@
+[![CI](https://github.com/SaintPepsi/svelte-writable-with/actions/workflows/ci.yml/badge.svg)](https://github.com/SaintPepsi/svelte-writable-with/actions/workflows/ci.yml)
 # svelte-writable-with
 
 A Svelte store utility library that allows you to extend the writable.
