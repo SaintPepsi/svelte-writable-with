@@ -1,6 +1,7 @@
 import { get, type Writable, writable } from 'svelte/store';
 import { isWritable } from './typeguards/isWritable';
 import type { UnpackWritable } from './types';
+import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
 
 type WithStateRaw<T> = Omit<T, 'state'> & {
 	// set: Writable<UnpackWritable<T>>['set'];
@@ -23,10 +24,14 @@ export const withState = <T>(initialValue: T): WithState<T> => {
 	const isWritableInitialValue = isWritable(initialValue);
 	const writableRes = isWritableInitialValue ? initialValue : writable(initialValue);
 
-	return {
+	const withStateRes = {
 		...writableRes,
 		get state() {
 			return get(writableRes);
 		},
-	} as any;
+	};
+
+	reApplyPropertyDescriptors(writableRes, withStateRes);
+
+	return withStateRes as any;
 };

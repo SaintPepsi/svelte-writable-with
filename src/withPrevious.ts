@@ -9,6 +9,7 @@ import {
 import type { Tagged } from 'type-fest';
 import { isWritable } from './typeguards/isWritable';
 import type { UnpackWritable } from './types';
+import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
 
 type PreviousValue<T> = Tagged<T, 'Previous Value'>;
 
@@ -33,8 +34,8 @@ export const withPrevious = <T>(initialValue: T): WithPrevious<T> => {
 	const isWritableInitialValue = isWritable(initialValue);
 
 	const writableRes = isWritableInitialValue ? initialValue : writable(initialValue);
-	type PreviousValue = Tagged<Value, 'Previous Value'>;
 	const { subscribe, set, update } = writableRes;
+	type PreviousValue = Tagged<Value, 'Previous Value'>;
 
 	let previousValue: PreviousValue;
 	function setPreviousValue(value: T) {
@@ -44,7 +45,7 @@ export const withPrevious = <T>(initialValue: T): WithPrevious<T> => {
 	const initValue = isWritableInitialValue ? get(initialValue) : initialValue;
 	setPreviousValue(initValue);
 
-	return {
+	const withPreviousRes = {
 		...writableRes,
 		subscribe: (
 			run: (value: Value, previousValue: PreviousValue) => void,
@@ -66,5 +67,9 @@ export const withPrevious = <T>(initialValue: T): WithPrevious<T> => {
 		get previous() {
 			return previousValue;
 		},
-	} as any;
+	};
+
+	reApplyPropertyDescriptors(writableRes, withPreviousRes);
+
+	return withPreviousRes as any;
 };

@@ -2,6 +2,7 @@ import type { Updater } from 'svelte/store';
 import { get, writable, type Writable } from 'svelte/store';
 import { isWritable } from './typeguards/isWritable';
 import type { UnpackWritable } from './types';
+import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
 
 type WithLocalStorageRaw<TKey, T> = Omit<T, 'subscribe' | 'set' | 'update'> & {
 	set: (value: UnpackWritable<T>) => void;
@@ -71,7 +72,7 @@ export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStor
 		localStorage.setItem(storageKey, JSON.stringify(value));
 	};
 
-	return {
+	const withPreviousRes = {
 		...writableRes,
 		set: (value: T) => {
 			storeItem(value);
@@ -82,5 +83,9 @@ export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStor
 			storeItem(value);
 			set(value);
 		},
-	} as any;
+	};
+
+	reApplyPropertyDescriptors(writableRes, withPreviousRes);
+
+	return withPreviousRes as any;
 };
