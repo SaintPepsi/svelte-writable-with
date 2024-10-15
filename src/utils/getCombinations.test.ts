@@ -2,10 +2,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { getCombinations } from './getCombinations';
 
 const logNames = false;
-function logFnNames(combinations: unknown[][]) {
+function logFnNames(combinations: ReturnType<typeof vi.fn>[][]) {
 	if (!logNames) return;
 	combinations.forEach((fns) => {
-		const names = fns.map((fn) => fn.getMockName()).join(', ');
+		const names = fns
+			.map((fn) => {
+				return fn.getMockName();
+			})
+			.join(', ');
 		console.log('names', fns.length, names);
 	});
 }
