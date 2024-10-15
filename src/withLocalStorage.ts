@@ -17,20 +17,27 @@ export type WithLocalStorage<TKey, T> = WithLocalStorageRaw<
 	T extends Writable<unknown> ? T : Writable<T>
 >;
 
-const baseKey = 'svelte-writable-with:';
+export const withLocalStorageBaseKey = 'svelte-writable-with:';
 
 /**
  * @param key the key for the localStorage. can be extended with the interface `WithLocalStorageKeys`
  */
-export const withLocalStorage = <T, TKey extends string>(
-	key: TKey,
-	initialValue: T,
-): WithLocalStorage<TKey, T> => {
-	const storageKey = `${baseKey}${key}`;
+export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStorage<string, T> => {
+	const storageKey = `${withLocalStorageBaseKey}${key}`;
 
 	const isInitialValueWritable = isWritable(initialValue);
 
-	const storedValue = localStorage.getItem(storageKey);
+	function getStoredValue() {
+		const storedValue = localStorage.getItem(storageKey);
+		if (storedValue === 'undefined') {
+			localStorage.removeItem(storageKey);
+			return null;
+		}
+
+		return storedValue;
+	}
+
+	const storedValue = getStoredValue();
 
 	function safeParse(value: string | null): T | undefined {
 		try {
@@ -50,7 +57,7 @@ export const withLocalStorage = <T, TKey extends string>(
 				initialValue.set(parsedValue);
 			}
 
-			// return initialValue;
+			return initialValue;
 		}
 
 		return writable(parsedValue);
