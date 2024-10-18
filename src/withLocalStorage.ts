@@ -2,6 +2,7 @@ import type { Updater } from 'svelte/store';
 import { get, writable, type Writable } from 'svelte/store';
 import { isWritable } from './typeguards/isWritable';
 import type { UnpackWritable } from './types';
+import { hasLocalStorage } from './utils/hasLocalStorage';
 import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
 
 type WithLocalStorageRaw<TKey, T> = Omit<T, 'subscribe' | 'set' | 'update'> & {
@@ -24,11 +25,13 @@ export const withLocalStorageBaseKey = 'svelte-writable-with:';
  * @param key the key for the localStorage. can be extended with the interface `WithLocalStorageKeys`
  */
 export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStorage<string, T> => {
+	console.log("typeof window === 'undefined'", typeof window === 'undefined');
 	const storageKey = `${withLocalStorageBaseKey}${key}`;
 
 	const isInitialValueWritable = isWritable(initialValue);
 
 	function getStoredValue() {
+		if (!hasLocalStorage) return null;
 		const storedValue = localStorage.getItem(storageKey);
 		if (storedValue === 'undefined') {
 			localStorage.removeItem(storageKey);
@@ -69,6 +72,7 @@ export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStor
 	const { set } = writableRes;
 
 	const storeItem = (value: T) => {
+		if (!hasLocalStorage) return null;
 		localStorage.setItem(storageKey, JSON.stringify(value));
 	};
 

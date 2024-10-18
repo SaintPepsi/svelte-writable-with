@@ -204,7 +204,20 @@ mode.set("pan");
 // Revert to the previous mode
 mode.set(mode.previous);
 ```
+### Common Issues:
 
+- Using any writable where a `$state` rune is expected, i.e. `"Type 'WithState<string, Writable<boolean>>' is not assignable to type 'boolean | null | undefined'."`
+
+    use `fromStore` -> `import { fromStore } from 'svelte/store';` to create a reactive `$state` rune .e.g:
+    ```html
+    <script lang="ts">
+    export let isDebuggerEnabled = withLocalStorage(writable(false), 'DebuggerEnabled');
+	export let isChecked = fromStore(isDebuggerEnabled);
+    </script>
+    <input type="checkbox" id="debugger" name="debugger" bind:checked={isChecked.current} />
+    <label for="debugger">Debugger</label>
+    ```
+    
 
 ### Goal:
 
