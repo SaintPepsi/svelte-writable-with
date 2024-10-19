@@ -44,17 +44,43 @@ function checkWithLocalStorageKeys<T>(writableWith: T) {
 }
 
 export function testWritableWithCombination(combination: WritableWith[]) {
-	console.log('combination', combination);
+	const loggers = ['log', 'debug', 'trace', 'info', 'warn', 'error'] as const;
+
+	type LogFunction = (...args: any) => void;
+	type LoggedInvocation = [LogFunction, any[]];
 
 	describe(`GIVEN ${combination.map((ww) => ww.name).join(', ')}`, () => {
-		beforeEach(() => {
+		beforeEach((ctx) => {
 			localStorage.clear();
+
+			const logs: LoggedInvocation[] = [];
+
+			const original: Record<string, LogFunction> = {};
+			for (const logger of loggers) {
+				original[logger] = console[logger];
+				console[logger] = (...args) => logs.push([original[logger], args]);
+			}
+
+			ctx.onTestFailed(() => {
+				for (const [logger, data] of logs) {
+					logger.call(console, ...data);
+				}
+			});
+
+			return () => {
+				for (const logger of loggers) {
+					console[logger] = original[logger];
+				}
+			};
 		});
 
 		const initialValue = 10;
 
 		function createWritableRes() {
+			console.log('combination', combination);
 			return combination.reduce<any>((currentValueOrWritable, writableWithEntry) => {
+				console.log('currentValueOrWritable', currentValueOrWritable);
+				console.log('writableWithEntry', writableWithEntry);
 				if (isStateWithableMethod(writableWithEntry)) {
 					return writableWithEntry(currentValueOrWritable);
 				}
@@ -114,6 +140,8 @@ export function testWritableWithCombination(combination: WritableWith[]) {
 
 			it('THEN the value should get stored in localStorage', () => {
 				const store = createWritableRes();
+				console.log('store', store);
+
 				const value1 = localStorage.getItem(
 					`${withLocalStorageBaseKey}${localStorageTestKey}`,
 				);
@@ -127,6 +155,9 @@ export function testWritableWithCombination(combination: WritableWith[]) {
 				const value2 = localStorage.getItem(
 					`${withLocalStorageBaseKey}${localStorageTestKey}`,
 				);
+
+				console.log('value2', value1);
+				console.log('get(store)', get(store));
 
 				expect(value2).toBe(JSON.stringify(20));
 			});

@@ -9,8 +9,6 @@ describe('Writable With Combinations', () => {
 	const writableWithCombinations = getCombinations(writableWithMethods);
 
 	writableWithCombinations.forEach((methods) => {
-		console.log('methods', methods);
-
 		testWritableWithCombination(methods);
 	});
 });
