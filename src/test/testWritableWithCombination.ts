@@ -1,11 +1,13 @@
-import { get, writable } from 'svelte/store';
-import type { ValueOf } from 'type-fest';
+import { get } from 'svelte/store';
 import { beforeEach, describe, expect, it } from 'vitest';
 import writableWith from '..';
+import { isLocalStorageWithableMethod } from '../typeguards/isLocalStorageWithableMethod';
+import { isPreviousWithableMethod } from '../typeguards/isPreviousWithableMethod';
+import { isStateWithableMethod } from '../typeguards/isStateWithableMethod';
+import { isWritableMethod } from '../typeguards/isWritableMethod';
+import type { WritableWith } from '../types';
 import { withLocalStorageBaseKey } from '../withLocalStorage';
 import { expectWritableWithReturnPaths } from './expectWritableWithReturnPaths';
-
-type WritableWith = ValueOf<typeof writableWith> | typeof writable;
 
 const localStorageTestKey = '_TEST';
 
@@ -53,21 +55,20 @@ export function testWritableWithCombination(combination: WritableWith[]) {
 
 		function createWritableRes() {
 			return combination.reduce<any>((currentValueOrWritable, writableWithEntry) => {
-				if (writableWithEntry === writableWith.state) {
+				if (isStateWithableMethod(writableWithEntry)) {
 					return writableWithEntry(currentValueOrWritable);
 				}
 
-				if (writableWithEntry === writableWith.localStorage) {
+				if (isLocalStorageWithableMethod(writableWithEntry)) {
 					return writableWithEntry(currentValueOrWritable, localStorageTestKey);
 				}
-				if (writableWithEntry === writable) {
+
+				if (isPreviousWithableMethod(writableWithEntry)) {
 					return writableWithEntry(currentValueOrWritable);
 				}
 
-				if (writableWithEntry === writableWith.previous) {
-					return (writableWithEntry as typeof writableWith.previous)(
-						currentValueOrWritable,
-					);
+				if (isWritableMethod(writableWithEntry)) {
+					return writableWithEntry(currentValueOrWritable);
 				}
 
 				return currentValueOrWritable;
@@ -116,6 +117,9 @@ export function testWritableWithCombination(combination: WritableWith[]) {
 				const value1 = localStorage.getItem(
 					`${withLocalStorageBaseKey}${localStorageTestKey}`,
 				);
+
+				console.log('value1', value1);
+				console.log('get(store)', get(store));
 
 				expect(value1).toBe(null);
 

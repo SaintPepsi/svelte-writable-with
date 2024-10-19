@@ -1,5 +1,5 @@
-import { get, type Writable, writable } from 'svelte/store';
-import { isWritable } from './typeguards/isWritable';
+import { get, type Writable } from 'svelte/store';
+import { createWritable } from './createWritable';
 import type { UnpackWritable } from './types';
 import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
 
@@ -21,8 +21,7 @@ export type WithState<T> = WithStateRaw<
 >
 
 export const withState = <T>(initialValue: T): WithState<T> => {
-	const isWritableInitialValue = isWritable(initialValue);
-	const writableRes = isWritableInitialValue ? initialValue : writable(initialValue);
+	const writableRes = createWritable(initialValue);
 
 	const withStateRes = {
 		...writableRes,

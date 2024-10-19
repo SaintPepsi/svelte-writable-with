@@ -1,7 +1,7 @@
 import type { Writable } from 'svelte/store';
 import { z } from 'zod';
 
-export const isWritable = <T extends Writable<any>>(value: any): value is T => {
+export const isWithable = <T extends Writable<any>>(value: any): value is T => {
 	const parseRes = z
 		.object({
 			subscribe: z.function(z.tuple([]), z.any()),

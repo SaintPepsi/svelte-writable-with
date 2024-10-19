@@ -1,11 +1,11 @@
 import { writable } from 'svelte/store';
 import { describe, expect, it } from 'vitest';
-import { isWritable } from './isWritable';
+import { isWithable } from './isWithable';
 
-describe('isWritable', () => {
+describe('isWithable', () => {
 	it('should return true for a valid writable store', () => {
 		const store = writable(0);
-		expect(isWritable(store)).toBe(true);
+		expect(isWithable(store)).toBe(true);
 	});
 
 	it('should return false for an object without subscribe method', () => {
@@ -13,7 +13,7 @@ describe('isWritable', () => {
 			set: () => {},
 			update: () => {},
 		};
-		expect(isWritable(invalidStore)).toBe(false);
+		expect(isWithable(invalidStore)).toBe(false);
 	});
 
 	it('should return false for an object without set method', () => {
@@ -21,7 +21,7 @@ describe('isWritable', () => {
 			subscribe: () => {},
 			update: () => {},
 		};
-		expect(isWritable(invalidStore)).toBe(false);
+		expect(isWithable(invalidStore)).toBe(false);
 	});
 
 	it('should return false for an object without update method', () => {
@@ -29,15 +29,15 @@ describe('isWritable', () => {
 			subscribe: () => {},
 			set: () => {},
 		};
-		expect(isWritable(invalidStore)).toBe(false);
+		expect(isWithable(invalidStore)).toBe(false);
 	});
 
 	it('should return false for a non-object value', () => {
-		expect(isWritable(null)).toBe(false);
-		expect(isWritable(undefined)).toBe(false);
-		expect(isWritable(42)).toBe(false);
-		expect(isWritable('string')).toBe(false);
-		expect(isWritable([])).toBe(false);
+		expect(isWithable(null)).toBe(false);
+		expect(isWithable(undefined)).toBe(false);
+		expect(isWithable(42)).toBe(false);
+		expect(isWithable('string')).toBe(false);
+		expect(isWithable([])).toBe(false);
 	});
 
 	it('should return false for an object with incorrect method signatures', () => {
@@ -46,7 +46,7 @@ describe('isWritable', () => {
 			set: 'not a function',
 			update: 'not a function',
 		};
-		expect(isWritable(invalidStore)).toBe(false);
+		expect(isWithable(invalidStore)).toBe(false);
 	});
 
 	it('should return false for an object that has writable keys but also additional keys', () => {
@@ -56,6 +56,6 @@ describe('isWritable', () => {
 			update: () => {},
 			great: () => {},
 		};
-		expect(isWritable(invalidStore)).toBe(true);
+		expect(isWithable(invalidStore)).toBe(true);
 	});
 });

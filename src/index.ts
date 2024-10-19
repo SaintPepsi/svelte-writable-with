@@ -1,4 +1,4 @@
-import { isWritable } from './typeguards/isWritable';
+import { isWithable } from './typeguards/isWithable';
 import type { UnpackWritable } from './types';
 import { withLocalStorage, withLocalStorageBaseKey } from './withLocalStorage';
 import { withPrevious } from './withPrevious';
@@ -12,6 +12,6 @@ const writableWith = {
 
 export default writableWith;
 
-export { isWritable, withLocalStorage, withLocalStorageBaseKey, withPrevious, withState };
+export { isWithable, withLocalStorage, withLocalStorageBaseKey, withPrevious, withState };
 
 export type { UnpackWritable };

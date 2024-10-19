@@ -1,6 +1,6 @@
 import type { Updater } from 'svelte/store';
-import { get, writable, type Writable } from 'svelte/store';
-import { isWritable } from './typeguards/isWritable';
+import { get, type Writable } from 'svelte/store';
+import { createWritable } from './createWritable';
 import type { UnpackWritable } from './types';
 import { hasLocalStorage } from './utils/hasLocalStorage';
 import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
@@ -25,9 +25,8 @@ export const withLocalStorageBaseKey = 'svelte-writable-with:';
  * @param key the key for the localStorage. can be extended with the interface `WithLocalStorageKeys`
  */
 export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStorage<string, T> => {
+	type Value = UnpackWritable<T>;
 	const storageKey = `${withLocalStorageBaseKey}${key}`;
-
-	const isInitialValueWritable = isWritable(initialValue);
 
 	function getStoredValue() {
 		if (!hasLocalStorage) return null;
@@ -42,7 +41,7 @@ export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStor
 
 	const storedValue = getStoredValue();
 
-	function safeParse(value: string | null): T | undefined {
+	function safeParse(value: string | null): Value | undefined {
 		try {
 			if (value) {
 				return JSON.parse(value);
@@ -52,36 +51,27 @@ export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStor
 		}
 	}
 
-	const getWritable = (): Writable<T> => {
-		const parsedValue = safeParse(storedValue);
+	const writableRes = createWritable(initialValue);
 
-		if (isInitialValueWritable) {
-			if (parsedValue) {
-				initialValue.set(parsedValue);
-			}
-
-			return initialValue;
-		}
-
-		return writable(parsedValue);
-	};
-
-	const writableRes = getWritable();
+	const parsedValue = safeParse(storedValue);
+	if (parsedValue) {
+		writableRes.set(parsedValue);
+	}
 
 	const { set } = writableRes;
 
-	const storeItem = (value: T) => {
+	const storeItem = (value: Value) => {
 		if (!hasLocalStorage) return null;
 		localStorage.setItem(storageKey, JSON.stringify(value));
 	};
 
 	const withPreviousRes = {
 		...writableRes,
-		set: (value: T) => {
+		set: (value: Value) => {
 			storeItem(value);
 			set(value);
 		},
-		update: (updater: Updater<T>) => {
+		update: (updater: Updater<Value>) => {
 			const value = updater(get(writableRes));
 			storeItem(value);
 			set(value);
