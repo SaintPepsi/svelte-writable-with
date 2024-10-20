@@ -25,7 +25,6 @@ export const withLocalStorageBaseKey = 'svelte-writable-with:';
  * @param key the key for the localStorage. can be extended with the interface `WithLocalStorageKeys`
  */
 export const withLocalStorage = <T>(initialValue: T, key: string): WithLocalStorage<string, T> => {
-	console.log("typeof window === 'undefined'", typeof window === 'undefined');
 	const storageKey = `${withLocalStorageBaseKey}${key}`;
 
 	const isInitialValueWritable = isWritable(initialValue);
