@@ -1,11 +1,4 @@
-import {
-	get,
-	writable,
-	type Invalidator,
-	type Unsubscriber,
-	type Updater,
-	type Writable,
-} from 'svelte/store';
+import { get, writable, type Unsubscriber, type Updater, type Writable } from 'svelte/store';
 import type { Tagged } from 'type-fest';
 import { isWritable } from './typeguards/isWritable';
 import type { UnpackWritable } from './types';
@@ -17,7 +10,6 @@ type WithPreviousRaw<T> = Omit<T, 'subscribe' | 'set' | 'update' | 'previous'> &
 	subscribe: (
 		this: void,
 		run: (value: UnpackWritable<T>, previousValue: PreviousValue<UnpackWritable<T>>) => void,
-		invalidate?: Invalidator<UnpackWritable<T>>,
 	) => Unsubscriber;
 	set: (value: UnpackWritable<T>) => void;
 	update: (updater: Updater<UnpackWritable<T>>) => void;

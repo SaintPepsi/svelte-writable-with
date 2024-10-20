@@ -1,5 +1,4 @@
 import {
-	type Invalidator,
 	type Subscriber,
 	type Unsubscriber,
 	type Updater,
@@ -33,11 +32,7 @@ type WritableWithState<T> = Writable<T> & {
 interface FakeWritable<T> {
 	set: (this: void, value: T) => void;
 	update: (this: void, updater: Updater<T>) => void;
-	subscribe: (
-		this: void,
-		run: Subscriber<T>,
-		invalidate?: Invalidator<T> | undefined,
-	) => Unsubscriber;
+	subscribe: (this: void, run: Subscriber<T>) => Unsubscriber;
 }
 
 type WritableTest = Writable<'test'>;
