@@ -1,23 +1,22 @@
-import { get, type Updater, type Writable } from 'svelte/store';
-import type { SetParameterType, Tagged } from 'type-fest';
+import { get, type Unsubscriber, type Updater, type Writable } from 'svelte/store';
+import type { Simplify, Tagged } from 'type-fest';
 import { createWritable } from './createWritable';
 import type { UnpackWritable } from './types';
 import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
 
 type PreviousValue<T> = Tagged<T, 'Previous Value'>;
-// subscribe: (
-//     this: void,
-//     run: (value: UnpackWritable<T>, previousValue: PreviousValue<UnpackWritable<T>>) => void,
-//     invalidate?: Invalidator<T>,
-// ) => Unsubscriber;
+
+type WithPreviousRawSubscribe<T> = (
+	run: (value: UnpackWritable<T>, previousValue: PreviousValue<UnpackWritable<T>>) => void,
+	invalidate?: Parameters<Writable<UnpackWritable<T>>['subscribe']>['1'],
+) => Unsubscriber;
+
 type WithPreviousRaw<T> = Omit<T, 'subscribe' | 'set' | 'update' | 'previous'> & {
-	subscribe: SetParameterType<
-		Writable<UnpackWritable<T>>['subscribe'],
-		{ 1: (value: UnpackWritable<T>, previousValue: PreviousValue<UnpackWritable<T>>) => void }
-	>;
+	subscribe: WithPreviousRawSubscribe<T>;
 	set: (value: UnpackWritable<T>) => void;
 	update: (updater: Updater<UnpackWritable<T>>) => void;
 	previous: PreviousValue<UnpackWritable<T>>;
+	test: Simplify<Omit<T, 'subscribe' | 'set' | 'update' | 'previous'>>;
 };
 
 /**
@@ -44,10 +43,10 @@ export const withPrevious = <T>(initialValue: T): WithPrevious<T> => {
 		...writableRes,
 		subscribe: (
 			run: (value: Value, previousValue: PreviousValue) => void,
-			invalidate?: () => void,
+			invalidate?: Parameters<Writable<UnpackWritable<T>>['subscribe']>['1'],
 		) => {
 			return subscribe((value) => {
-				run(value as Value, previousValue);
+				run(value, previousValue);
 				setPreviousValue(value);
 			}, invalidate);
 		},
