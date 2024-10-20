@@ -217,7 +217,7 @@ keeps track of an indefinite history of values.
 
 - **[+]** _property_ `history` - Returns the history writable.
 
-- **[%]** _method_ `popHistory` - removes last value from the history object (if it exists), sets the state with the popped value and then returns the popped value
+- **[+]** _method_ `popHistory` - removes last value from the history object (if it exists), sets the state with the popped value and then returns the popped value
 
 - **[%]** _method_ `subscribe` - history value as second argument `(value, history)`
     
