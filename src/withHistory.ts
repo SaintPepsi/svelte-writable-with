@@ -13,12 +13,12 @@ type WithHistoryRawSubscribe<T> = (
 	invalidate?: WithHistoryInvalidate<T>,
 ) => Unsubscriber;
 
-type WithHistoryRaw<T> = Omit<T, 'subscribe' | 'set' | 'update' | 'history' | 'popHistory'> & {
+type WithHistoryRaw<T> = Omit<T, 'subscribe' | 'set' | 'update' | 'history' | 'pop'> & {
 	subscribe: WithHistoryRawSubscribe<T>;
 	set: (value: UnpackWritable<T>) => void;
 	update: (updater: Updater<UnpackWritable<T>>) => void;
 	history: Writable<History<T>>;
-	popHistory: () => UnpackWritable<T> | undefined;
+	pop: () => UnpackWritable<T> | undefined;
 };
 
 /**
@@ -52,7 +52,7 @@ export const withHistory = <T>(initialValue: T): WithHistory<T> => {
 		get history() {
 			return historyWritable;
 		},
-		popHistory: () => {
+		pop: () => {
 			const lastEntry = get(historyWritable).at(-1);
 			if (lastEntry) {
 				historyWritable.update((history) => history.slice(0, -1));

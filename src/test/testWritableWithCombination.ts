@@ -50,7 +50,7 @@ function checkWithHistoryKeys<T>(writableWith: T) {
 		writableWith,
 		[
 			'set', 'subscribe', 'update',
-			'history', 'popHistory'
+			'history', 'pop'
 		]
 	);
 }
@@ -196,10 +196,10 @@ export function testWritableWithCombination(combination: WritableWith[]) {
 					expect(get(store.history)).toEqual([]);
 				});
 
-				it('THEN popHistory should return undefined', () => {
+				it('THEN pop should return undefined', () => {
 					const store = createWritableRes();
 
-					expect(store.popHistory()).toBeUndefined();
+					expect(store.pop()).toBeUndefined();
 				});
 
 				it('THEN set should function correctly', () => {
