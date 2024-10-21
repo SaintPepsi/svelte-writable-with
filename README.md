@@ -204,6 +204,70 @@ mode.set("pan");
 // Revert to the previous mode
 mode.set(mode.previous);
 ```
+
+
+
+
+### `withHistory`
+usage: `writableWith.history | withHistory`
+
+keeps track of an indefinite history of values.
+
+#### this utility returns:
+
+- **[+]** _property_ `history` - Returns the history writable.
+
+- **[%]** _method_ `popHistory` - removes last value from the history object (if it exists), sets the state with the popped value and then returns the popped value
+
+- **[%]** _method_ `subscribe` - history value as second argument `(value, history)`
+    
+- **[%]** _method_ `set` - pushes the value to history before setting store state
+    
+- **[%]** _method_ `update` - pushes the value to history before updating store state
+
+#### Usage:
+
+```typescript
+const {
+    subscribe,      // Modified subscribe with 2 arguments (`value`, `history`)
+    set,            // Modified set updates `history` value
+    update,         // Modified update updates `history` value
+    history,       	// The history writable
+	popHistory, 	// removes last value from history and returns it (updates main store with returned value)
+} = withHistory(writable(1337));
+```
+
+#### Example:
+
+setting the writable back to the last value
+
+```ts
+type States = "paint" | "pan" | "erase"; 
+const mode = withHistory(writable<States>("paint"));
+
+// Some condition to change mode
+mode.set("pan");
+// history = ['paint']
+mode.set("paint");
+// history = ['paint', 'pan']
+mode.set("erase");
+// history = ['paint', 'pan', 'paint']
+
+// Some code...
+
+const paintValue1 = mode.popHistory();
+// paintValue1 === 'paint'
+// history === ['paint', 'pan']
+const panValue = mode.popHistory();
+// panValue === 'pan'
+// history === ['paint']
+const paintValue2 = mode.popHistory();
+// paintValue2 === 'paint'
+// history === []
+
+const originalMode = get(mode) // "paint"
+```
+
 ### Common Issues:
 
 - Using any writable where a `$state` rune is expected, i.e. `"Type 'WithState<string, Writable<boolean>>' is not assignable to type 'boolean | null | undefined'."`

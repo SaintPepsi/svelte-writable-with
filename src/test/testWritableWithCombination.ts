@@ -1,6 +1,7 @@
 import { get } from 'svelte/store';
 import { beforeEach, describe, expect, it } from 'vitest';
 import writableWith from '..';
+import { isHistoryWithableMethod } from '../typeguards/isHistoryWithableMethod';
 import { isLocalStorageWithableMethod } from '../typeguards/isLocalStorageWithableMethod';
 import { isPreviousWithableMethod } from '../typeguards/isPreviousWithableMethod';
 import { isStateWithableMethod } from '../typeguards/isStateWithableMethod';
@@ -41,6 +42,17 @@ function checkWithLocalStorageKeys<T>(writableWith: T) {
             'set', 'subscribe', 'update',
         ]
     );
+}
+
+function checkWithHistoryKeys<T>(writableWith: T) {
+	// prettier-ignore
+	expectWritableWithReturnPaths(
+		writableWith,
+		[
+			'set', 'subscribe', 'update',
+			'history', 'popHistory'
+		]
+	);
 }
 
 export function testWritableWithCombination(combination: WritableWith[]) {
@@ -87,6 +99,10 @@ export function testWritableWithCombination(combination: WritableWith[]) {
 
 				if (isLocalStorageWithableMethod(writableWithEntry)) {
 					return writableWithEntry(currentValueOrWritable, localStorageTestKey);
+				}
+
+				if (isHistoryWithableMethod(writableWithEntry)) {
+					return writableWithEntry(currentValueOrWritable);
 				}
 
 				if (isPreviousWithableMethod(writableWithEntry)) {
@@ -165,9 +181,50 @@ export function testWritableWithCombination(combination: WritableWith[]) {
 			it('THEN the subscriber should fire when a storage event happens', () => {});
 		}
 
+		if (combination.includes(writableWith.history)) {
+			it('THEN the resulting writable should have the correct keys', () => {
+				const store = createWritableRes();
+
+				// prettier-ignore
+				checkWithHistoryKeys(store)
+			});
+
+			describe('AND the writable has not been updated yet', () => {
+				it('THEN history should be an empty array', () => {
+					const store = createWritableRes();
+
+					expect(get(store.history)).toEqual([]);
+				});
+
+				it('THEN popHistory should return undefined', () => {
+					const store = createWritableRes();
+
+					expect(store.popHistory()).toBeUndefined();
+				});
+
+				it('THEN set should function correctly', () => {
+					const store = createWritableRes();
+
+					store.set(20);
+
+					expect(get(store)).toBe(20);
+					expect(get(store.history)).toEqual([10]);
+				});
+
+				it('THEN update should function correctly', () => {
+					const store = createWritableRes();
+
+					store.update(() => 20);
+
+					expect(get(store)).toBe(20);
+					expect(get(store.history)).toEqual([10]);
+				});
+			});
+		}
+
 		it('THEN update should function correctly', () => {
 			const store = createWritableRes();
-
+			console.log('store', store);
 			store.update(() => 20);
 
 			expect(get(store)).toBe(20);
