@@ -1,13 +1,10 @@
 import { get, type Unsubscriber, type Updater, type Writable } from 'svelte/store';
-import type { Simplify, Tagged } from 'type-fest';
 import { createWritable } from './createWritable';
 import type { UnpackWritable } from './types';
 import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
 
-type PreviousValue<T> = Tagged<T, 'Previous Value'>;
-
 type WithPreviousRawSubscribe<T> = (
-	run: (value: UnpackWritable<T>, previousValue: PreviousValue<UnpackWritable<T>>) => void,
+	run: (value: UnpackWritable<T>, previousValue: UnpackWritable<T>) => void,
 	invalidate?: Parameters<Writable<UnpackWritable<T>>['subscribe']>['1'],
 ) => Unsubscriber;
 
@@ -15,8 +12,7 @@ type WithPreviousRaw<T> = Omit<T, 'subscribe' | 'set' | 'update' | 'previous'> &
 	subscribe: WithPreviousRawSubscribe<T>;
 	set: (value: UnpackWritable<T>) => void;
 	update: (updater: Updater<UnpackWritable<T>>) => void;
-	previous: PreviousValue<UnpackWritable<T>>;
-	test: Simplify<Omit<T, 'subscribe' | 'set' | 'update' | 'previous'>>;
+	previous: UnpackWritable<T>;
 };
 
 /**
@@ -29,33 +25,27 @@ export const withPrevious = <T>(initialValue: T): WithPrevious<T> => {
 
 	const writableRes = createWritable(initialValue);
 	const { subscribe, set, update } = writableRes;
-	type PreviousValue = Tagged<Value, 'Previous Value'>;
-
-	let previousValue: PreviousValue;
-	function setPreviousValue(value: Value) {
-		previousValue = value as PreviousValue;
-	}
 
 	const initValue = get(writableRes);
-	setPreviousValue(initValue);
+	let previousValue: Value = initValue;
 
 	const withPreviousRes = {
 		...writableRes,
 		subscribe: (
-			run: (value: Value, previousValue: PreviousValue) => void,
+			run: (value: Value, previousValue: Value) => void,
 			invalidate?: Parameters<Writable<UnpackWritable<T>>['subscribe']>['1'],
 		) => {
 			return subscribe((value) => {
+				console.log('previousValue', previousValue);
 				run(value, previousValue);
-				setPreviousValue(value);
 			}, invalidate);
 		},
 		set: (value: Value) => {
-			setPreviousValue(get(writableRes));
+			previousValue = get(writableRes);
 			set(value);
 		},
 		update: (updater: Updater<Value>) => {
-			setPreviousValue(get(writableRes));
+			previousValue = get(writableRes);
 			update(updater);
 		},
 		get previous() {
