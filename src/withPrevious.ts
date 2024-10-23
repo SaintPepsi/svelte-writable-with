@@ -36,7 +36,6 @@ export const withPrevious = <T>(initialValue: T): WithPrevious<T> => {
 			invalidate?: Parameters<Writable<UnpackWritable<T>>['subscribe']>['1'],
 		) => {
 			return subscribe((value) => {
-				console.log('previousValue', previousValue);
 				run(value, previousValue);
 			}, invalidate);
 		},
