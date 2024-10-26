@@ -2,6 +2,7 @@ import { get, writable, type Unsubscriber, type Updater, type Writable } from 's
 import { createWritable } from './createWritable';
 import type { UnpackWritable } from './types';
 import { reApplyPropertyDescriptors } from './utils/reapplyPropertyDescriptors';
+import { withState, type WithState } from './withState';
 
 type History<T> = UnpackWritable<T>[];
 
@@ -17,7 +18,7 @@ type WithHistoryRaw<T> = Omit<T, 'subscribe' | 'set' | 'update' | 'history' | 'p
 	subscribe: WithHistoryRawSubscribe<T>;
 	set: (value: UnpackWritable<T>) => void;
 	update: (updater: Updater<UnpackWritable<T>>) => void;
-	history: Writable<History<T>>;
+	history: WithState<Writable<History<T>>>;
 	pop: () => UnpackWritable<T> | undefined;
 };
 
@@ -32,7 +33,7 @@ export const withHistory = <T>(initialValue: T): WithHistory<T> => {
 
 	const { subscribe, set } = writableRes;
 
-	const historyWritable = writable<History<T>>([]);
+	const historyWritable = withState(writable<History<T>>([]));
 
 	const withHistoryRes = {
 		...writableRes,
