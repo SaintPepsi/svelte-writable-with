@@ -215,7 +215,7 @@ keeps track of an indefinite history of values.
 
 #### this utility returns:
 
-- **[+]** _property_ `history` - Returns the history writable.
+- **[+]** _property_ `history` - Returns the history writable (with state).
 
 - **[+]** _method_ `pop` - removes last value from the history object (if it exists), sets the state with the popped value and then returns the popped value
 
